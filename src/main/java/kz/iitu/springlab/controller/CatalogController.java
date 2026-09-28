@@ -3,17 +3,24 @@ package kz.iitu.springlab.controller;
 import kz.iitu.springlab.service.CatalogService;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.web.bind.annotation.*;
-
+import kz.iitu.springlab.aspect.CallCounterAspect;
 import java.util.List;
 import java.util.Map;
+
+
+
+
+
 
 @RestController
 public class CatalogController {
 
     private final CatalogService catalogService;
+    private final CallCounterAspect callCounterAspect;
 
-    public CatalogController(CatalogService catalogService) {
+    public CatalogController(CatalogService catalogService, CallCounterAspect callCounterAspect) {
         this.catalogService = catalogService;
+        this.callCounterAspect = callCounterAspect;
     }
 
     // Эндпоинт для проверки прокси (Task 4.1)
@@ -46,5 +53,10 @@ public class CatalogController {
     @GetMapping("/api/lab4/remove-twice/{id}")
     public String removeTwice(@PathVariable long id) {
         return catalogService.removeTwice(id);
+    }
+
+    @GetMapping("/api/lab4/stats")
+    public Map<String, Integer> getMethodStatistics() {
+        return callCounterAspect.getStatistics();
     }
 }
