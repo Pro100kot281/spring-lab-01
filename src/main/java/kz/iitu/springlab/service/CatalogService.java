@@ -43,9 +43,6 @@ public class CatalogService {
         return first + "; " + second;
     }
 
-
-
-
     private void sleep(long ms) {
         try {
             Thread.sleep(ms);
