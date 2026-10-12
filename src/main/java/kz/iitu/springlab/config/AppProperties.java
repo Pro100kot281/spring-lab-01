@@ -13,7 +13,7 @@ public record AppProperties(
         @NotBlank String owner,
         @NotBlank String group,
         @Valid Mail mail,
-        @Valid Ui ui // Включено индивидуальное задание (Вариант 1)
+        @Valid Ui ui
 ) {
     public record Mail(
             @NotBlank @Email String from,
@@ -22,7 +22,7 @@ public record AppProperties(
             @DefaultValue("true") boolean enabled
     ) {}
 
-    // Индивидуальное задание (Вариант 1)
+
     public record Ui(
             @Pattern(regexp = "LIGHT|DARK", message = "Theme must be LIGHT or DARK")
             @DefaultValue("LIGHT") String theme,

@@ -6,6 +6,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import jakarta.validation.Valid;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+
+
 
 @Controller
 @RequestMapping("/books")
@@ -25,7 +31,7 @@ public class BookPageController {
         return "books/list";
     }
 
-    @PostMapping
+    /*@PostMapping
     public String create(@RequestParam String title,
                          @RequestParam String author,
                          @RequestParam int year,
@@ -34,4 +40,31 @@ public class BookPageController {
         redirect.addFlashAttribute("message", "Book «" + saved.title() + "» has been added");
         return "redirect:/books";
     }
+    */
+
+    @GetMapping("/new")
+    public String newForm(Model model) {
+        model.addAttribute("form", new BookForm());
+        model.addAttribute("genres", Genre.values());
+        return "books/form";
+    }
+    @PostMapping
+    public String create(@Valid @ModelAttribute("form") BookForm form,
+                         BindingResult binding,
+                         Model model,
+                         RedirectAttributes redirect) {
+
+        if (binding.hasErrors()) {
+            model.addAttribute("genres", Genre.values());
+            return "books/form";
+        }
+
+        Book saved = service.create(new Book(null, form.getTitle(),
+                form.getAuthor(), form.getYear()));
+
+        redirect.addFlashAttribute("message",
+                "Book «" + saved.title() + "» has been added");
+        return "redirect:/books";
+    }
+
 }
