@@ -21,4 +21,13 @@ public class BookMapper {
     public List<BookResponse> toResponseList(List<Book> books) {
         return books.stream().map(this::toResponse).toList();
     }
+
+    public Book applyPatch(Book existing, BookPatchRequest patch) {
+        return new Book(existing.id(),
+                patch.title() != null ? patch.title() : existing.title(),
+                patch.author() != null ? patch.author() : existing.author(),
+                patch.year() != null ? patch.year() : existing.year(),
+                patch.genre() != null ? patch.genre() : existing.genre(),
+                existing.createdAt());
+    }
 }

@@ -11,6 +11,7 @@ import kz.iitu.springlab.catalog.Book;
 import kz.iitu.springlab.catalog.BookNotFoundException;
 import kz.iitu.springlab.catalog.BookService;
 import kz.iitu.springlab.web.dto.BookMapper;
+import kz.iitu.springlab.web.dto.BookPatchRequest;
 import kz.iitu.springlab.web.dto.BookRequest;
 import kz.iitu.springlab.web.dto.BookResponse;
 import jakarta.validation.Valid;
@@ -73,6 +74,15 @@ public class BookRestController {
     @PutMapping("/{id}")
     public BookResponse update(@PathVariable long id, @Valid @RequestBody BookRequest request) {
         return mapper.toResponse(service.update(id, mapper.toDomain(request)));
+    }
+
+    @Operation(summary = "Partially update a book: only the fields present in the body change")
+    @PatchMapping("/{id}")
+    public BookResponse patch(@PathVariable long id,
+                              @Valid @RequestBody BookPatchRequest request) {
+        Book existing = service.findById(id)
+                .orElseThrow(() -> new BookNotFoundException(id));
+        return mapper.toResponse(service.update(id, mapper.applyPatch(existing, request)));
     }
 
     @Operation(summary = "Delete a book")
