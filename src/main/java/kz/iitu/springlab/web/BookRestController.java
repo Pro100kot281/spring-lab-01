@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import kz.iitu.springlab.catalog.Book;
 import kz.iitu.springlab.catalog.BookNotFoundException;
 import kz.iitu.springlab.catalog.BookService;
+import kz.iitu.springlab.catalog.GenreReport;
 import kz.iitu.springlab.web.dto.BookMapper;
 import kz.iitu.springlab.web.dto.BookPatchRequest;
 import kz.iitu.springlab.web.dto.BookRequest;
@@ -128,5 +129,10 @@ public class BookRestController {
     public ResponseEntity<Void> delete(@PathVariable long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
+    }
+    @Operation(summary = "Number of books and average year per genre")
+    @GetMapping("/report")
+    public List<GenreReport> report() {
+        return service.reportByGenre();
     }
 }

@@ -52,6 +52,15 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     Slice<Book> findSliceBy(Pageable pageable);
 
 
+    @Query("""
+            select new kz.iitu.springlab.catalog.GenreReport(
+                       b.genre, count(b), avg(b.year))
+            from Book b
+            group by b.genre
+            order by count(b) desc""")
+    List<GenreReport> reportByGenre();
+
+
     @EntityGraph(attributePaths = "author")
     List<Book> findByAuthorNameContainingIgnoreCase(String name);
 

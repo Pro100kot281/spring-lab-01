@@ -81,8 +81,13 @@ public class BookService {
         return repository.archiveOlderThan(year);
     }
 
+
+    public List<GenreReport> reportByGenre() {
+        return repository.reportByGenre();
+    }
     private Author findOrCreateAuthor(String name) {
         return authors.findByNameIgnoreCase(name)
                 .orElseGet(() -> authors.save(new Author(name, null)));
     }
+
 }
