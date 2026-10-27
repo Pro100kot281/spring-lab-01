@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
+<head th:replace="~{fragments/layout :: head(#{about.title})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+
+<main class="container">
+    <div class="page-head">
+        <div>
+            <span class="eyebrow">/api/info</span>
+            <h1 th:text="#{about.title}">About</h1>
+            <p class="lead" th:text="#{about.lead}">Information about the running application.</p>
+        </div>
+    </div>
+
+    <section class="grid grid-3" style="margin-bottom: 32px">
+        <div class="card stat">
+            <span class="stat-label" th:text="#{about.owner}">Owner</span>
+            <span class="stat-value" style="font-size:1.25rem; margin-top:6px" th:text="${info.owner()}">Owner</span>
+        </div>
+        <div class="card stat">
+            <span class="stat-label" th:text="#{about.java}">Java version</span>
+            <span class="stat-value" th:text="${info.javaVersion()}">25</span>
+        </div>
+        <div class="card stat">
+            <span class="stat-label" th:text="#{about.cpu}">CPU cores</span>
+            <span class="stat-value" th:text="${info.cpuCores()}">8</span>
+        </div>
+    </section>
+
+    <div class="grid" style="grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 18px;" id="about-grid">
+        <section class="card card-pad">
+            <h2 style="margin-bottom:16px" th:text="#{about.pages}">Pages</h2>
+            <div class="page-list">
+                <a th:href="@{/}" href="/"><span th:text="#{nav.home}">Home</span><code>/</code></a>
+                <a th:href="@{/books}" href="/books"><span th:text="#{nav.catalogue}">Catalogue</span><code>/books</code></a>
+                <a th:href="@{/books/new}" href="/books/new"><span th:text="#{nav.new}">Add book</span><code>/books/new</code></a>
+                <a th:href="@{/tools}" href="/tools"><span th:text="#{nav.tools}">Tools</span><code>/tools</code></a>
+                <a th:href="@{/about}" href="/about"><span th:text="#{nav.about}">About</span><code>/about</code></a>
+                <a th:href="@{/swagger-ui.html}" href="/swagger-ui.html"><span th:text="#{nav.api}">API docs</span><code>/swagger-ui.html</code></a>
+            </div>
+        </section>
+
+        <section class="card">
+            <div class="card-pad" style="padding-bottom: 12px"><h2 th:text="#{about.api}">REST API</h2></div>
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
+                    <tr><th th:text="#{about.method}">Method</th><th th:text="#{about.path}">Path</th><th th:text="#{about.desc}">Description</th></tr>
+                    </thead>
+                    <tbody>
+                    <tr><td><span class="method m-GET">GET</span></td><td><a class="mono" th:href="@{/api/books}" href="/api/books" target="_blank">/api/books</a></td><td th:text="#{about.api.list}">List books</td></tr>
+                    <tr><td><span class="method m-GET">GET</span></td><td><a class="mono" th:href="@{/api/books/1}" href="/api/books/1" target="_blank">/api/books/{id}</a></td><td th:text="#{about.api.get}">Find a book</td></tr>
+                    <tr><td><span class="method m-POST">POST</span></td><td class="mono">/api/books</td><td th:text="#{about.api.create}">Create a book</td></tr>
+                    <tr><td><span class="method m-PUT">PUT</span></td><td class="mono">/api/books/{id}</td><td th:text="#{about.api.put}">Replace a book</td></tr>
+                    <tr><td><span class="method m-PATCH">PATCH</span></td><td class="mono">/api/books/{id}</td><td th:text="#{about.api.patch}">Partially update</td></tr>
+                    <tr><td><span class="method m-DELETE">DELETE</span></td><td class="mono">/api/books/{id}</td><td th:text="#{about.api.delete}">Delete a book</td></tr>
+                    <tr><td><span class="method m-GET">GET</span></td><td><a class="mono" th:href="@{/api/hello}" href="/api/hello" target="_blank">/api/hello</a></td><td th:text="#{about.api.hello}">Greeting</td></tr>
+                    <tr><td><span class="method m-GET">GET</span></td><td><a class="mono" th:href="@{/api/info}" href="/api/info" target="_blank">/api/info</a></td><td th:text="#{about.api.info}">Application info</td></tr>
+                    <tr><td><span class="method m-GET">GET</span></td><td><a class="mono" th:href="@{/api/wordcount(text='hello spring world')}" href="/api/wordcount" target="_blank">/api/wordcount</a></td><td th:text="#{about.api.wc}">Word count</td></tr>
+                    <tr><td><span class="method m-GET">GET</span></td><td><a class="mono" th:href="@{/v3/api-docs}" href="/v3/api-docs" target="_blank">/v3/api-docs</a></td><td th:text="#{about.api.docs}">OpenAPI JSON</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+    <style>@media (max-width: 860px) { #about-grid { grid-template-columns: 1fr !important; } }</style>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

@@ -10,23 +10,16 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import kz.iitu.springlab.catalog.Book;
 import kz.iitu.springlab.catalog.BookNotFoundException;
 import kz.iitu.springlab.catalog.BookService;
-import kz.iitu.springlab.catalog.GenreReport;
 import kz.iitu.springlab.web.dto.BookMapper;
 import kz.iitu.springlab.web.dto.BookPatchRequest;
 import kz.iitu.springlab.web.dto.BookRequest;
 import kz.iitu.springlab.web.dto.BookResponse;
 import jakarta.validation.Valid;
-import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.web.PageableDefault;
-import org.springframework.data.web.PagedModel;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.util.List;
-import java.util.Map;
 
 @Tag(name = "Books", description = "The catalogue of books")
 @RestController
@@ -41,39 +34,9 @@ public class BookRestController {
         this.mapper = mapper;
     }
 
-
-    @Operation(summary = "A page of books, optionally filtered by genre",
-            description = "page (from 0), size and sort=field,asc|desc")
+    @Operation(summary = "List all books, optionally filtered by author")
     @GetMapping
-    public PagedModel<BookResponse> list(
-            @RequestParam(required = false) Genre genre,
-            @ParameterObject @PageableDefault(size = 5, sort = "title") Pageable pageable) {
-        return new PagedModel<>(service.find(genre, pageable).map(mapper::toResponse));
-    }
-
-
-    @Operation(summary = "The same list as a Slice — no count query")
-    @GetMapping("/slice")
-    public Map<String, Object> slice(
-            @ParameterObject @PageableDefault(size = 5, sort = "title") Pageable pageable) {
-        Slice<BookResponse> slice = service.findSlice(pageable).map(mapper::toResponse);
-        return Map.of(
-                "content", slice.getContent(),
-                "number", slice.getNumber(),
-                "size", slice.getSize(),
-                "hasNext", slice.hasNext());
-    }
-
-
-    @Operation(summary = "Archive every book older than the given year")
-    @PostMapping("/archive")
-    public Map<String, Integer> archive(@RequestParam int before) {
-        return Map.of("archived", service.archiveOlderThan(before));
-    }
-
-    @Operation(summary = "List books by author (not paged)")
-    @GetMapping("/by-author")
-    public List<BookResponse> byAuthor(@RequestParam String author) {
+    public List<BookResponse> list(@RequestParam(required = false) String author) {
         return mapper.toResponseList(service.findAll(author));
     }
 
@@ -101,16 +64,16 @@ public class BookRestController {
     })
     @PostMapping
     public ResponseEntity<BookResponse> create(@Valid @RequestBody BookRequest request) {
-        Book saved = service.create(mapper.toDomain(request), request.author());
+        Book saved = service.create(mapper.toDomain(request));
         return ResponseEntity
-                .created(URI.create("/api/books/" + saved.getId()))
+                .created(URI.create("/api/books/" + saved.id()))
                 .body(mapper.toResponse(saved));
     }
 
     @Operation(summary = "Replace an existing book")
     @PutMapping("/{id}")
     public BookResponse update(@PathVariable long id, @Valid @RequestBody BookRequest request) {
-        return mapper.toResponse(service.update(id, mapper.toDomain(request), request.author()));
+        return mapper.toResponse(service.update(id, mapper.toDomain(request)));
     }
 
     @Operation(summary = "Partially update a book: only the fields present in the body change")
@@ -119,8 +82,7 @@ public class BookRestController {
                               @Valid @RequestBody BookPatchRequest request) {
         Book existing = service.findById(id)
                 .orElseThrow(() -> new BookNotFoundException(id));
-        String author = request.author() != null ? request.author() : existing.getAuthor().getName();
-        return mapper.toResponse(service.update(id, mapper.applyPatch(existing, request), author));
+        return mapper.toResponse(service.update(id, mapper.applyPatch(existing, request)));
     }
 
     @Operation(summary = "Delete a book")
@@ -129,10 +91,5 @@ public class BookRestController {
     public ResponseEntity<Void> delete(@PathVariable long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
-    }
-    @Operation(summary = "Number of books and average year per genre")
-    @GetMapping("/report")
-    public List<GenreReport> report() {
-        return service.reportByGenre();
     }
 }

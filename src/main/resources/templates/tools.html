@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
+<head th:replace="~{fragments/layout :: head(#{tools.title})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+
+<main class="container">
+    <div class="page-head">
+        <div>
+            <span class="eyebrow">/api</span>
+            <h1 th:text="#{tools.title}">Tools</h1>
+            <p class="lead" th:text="#{tools.lead}">Small utilities backed by the /api endpoints.</p>
+        </div>
+    </div>
+
+    <div class="grid grid-2">
+        <section class="card card-pad">
+            <div class="tool-head">
+                <span class="icon-badge warm"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+                <div>
+                    <h2 th:text="#{tools.hello.title}">Greeting</h2>
+                    <p class="mono" th:text="#{tools.hello.desc}">GET /api/hello?name=…</p>
+                </div>
+            </div>
+            <form th:action="@{/tools}" action="/tools" method="get">
+                <input type="hidden" name="text" th:if="${text != null}" th:value="${text}">
+                <div class="field">
+                    <label for="name" th:text="#{tools.hello.label}">Your name</label>
+                    <input type="text" id="name" name="name" th:value="${name}" th:placeholder="#{tools.hello.placeholder}">
+                </div>
+                <button class="btn btn-primary" type="submit" th:text="#{tools.hello.button}">Say hello</button>
+            </form>
+            <div class="result" th:if="${greeting}">
+                <div class="big" th:text="${greeting.message()}">Hello, world!</div>
+                <div class="sub" th:text="${greeting.owner()}">Owner</div>
+                <a class="json-link" th:href="@{/api/hello(name=${name})}" href="#" target="_blank" th:text="#{tools.json} + ' ↗'">Open JSON ↗</a>
+            </div>
+        </section>
+
+        <section class="card card-pad">
+            <div class="tool-head">
+                <span class="icon-badge"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg></span>
+                <div>
+                    <h2 th:text="#{tools.wc.title}">Word counter</h2>
+                    <p class="mono" th:text="#{tools.wc.desc}">GET /api/wordcount?text=…</p>
+                </div>
+            </div>
+            <form th:action="@{/tools}" action="/tools" method="get">
+                <input type="hidden" name="name" th:if="${name != null}" th:value="${name}">
+                <div class="field">
+                    <label for="text" th:text="#{tools.wc.label}">Text</label>
+                    <textarea id="text" name="text" th:text="${text}" th:placeholder="#{tools.wc.placeholder}"></textarea>
+                </div>
+                <button class="btn btn-primary" type="submit" th:text="#{tools.wc.button}">Count</button>
+            </form>
+            <div class="result" th:if="${wordCount}">
+                <div class="metrics">
+                    <div><strong th:text="${wordCount.wordCount()}">0</strong><span th:text="#{tools.wc.words}">Words</span></div>
+                    <div><strong th:text="${wordCount.charCount()}">0</strong><span th:text="#{tools.wc.chars}">Characters</span></div>
+                    <div><strong th:text="${#strings.isEmpty(wordCount.longestWord())} ? '—' : ${wordCount.longestWord()}">—</strong><span th:text="#{tools.wc.longest}">Longest word</span></div>
+                </div>
+                <a class="json-link" th:href="@{/api/wordcount(text=${text})}" href="#" target="_blank" th:text="#{tools.json} + ' ↗'">Open JSON ↗</a>
+            </div>
+        </section>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

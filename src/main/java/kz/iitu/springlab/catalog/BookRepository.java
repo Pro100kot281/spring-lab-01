@@ -1,72 +1,42 @@
 package kz.iitu.springlab.catalog;
 
 import kz.iitu.springlab.web.Genre;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.jpa.repository.EntityGraph;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
-public interface BookRepository extends JpaRepository<Book, Long> {
+@Repository
+public class BookRepository {
+    private final Map<Long, Book> storage = new ConcurrentHashMap<>();
+    private final AtomicLong sequence = new AtomicLong();
 
+    public BookRepository() {
+        save(new Book(null, "Effective Java", "Joshua Bloch", 2018, Genre.NON_FICTION, Instant.now()));
+        save(new Book(null, "Clean Code", "Robert Martin", 2008, Genre.NON_FICTION, Instant.now()));
+        save(new Book(null, "Spring in Action", "Craig Walls", 2022, Genre.NON_FICTION, Instant.now()));
+    }
 
-    List<Book> findByGenre(Genre genre);
+    public List<Book> findAll() {
+        return List.copyOf(storage.values());
+    }
 
-    List<Book> findByTitleContainingIgnoreCase(String fragment);
+    public Optional<Book> findById(long id) {
+        return Optional.ofNullable(storage.get(id));
+    }
 
-    List<Book> findByYearBetweenOrderByYearDesc(int from, int to);
+    public Book save(Book book) {
+        long id = book.id() != null ? book.id() : sequence.incrementAndGet();
+        Book stored = new Book(id, book.title(), book.author(), book.year(),
+                book.genre(), book.createdAt() != null ? book.createdAt() : Instant.now());
+        storage.put(id, stored);
+        return stored;
+    }
 
-    List<Book> findTop3ByGenreOrderByYearDesc(Genre genre);
-
-    long countByAuthorName(String name);
-
-
-    @Query("""
-            select b from Book b
-            where b.genre = :genre and b.year >= :year
-            order by b.title""")
-    List<Book> search(@Param("genre") Genre genre, @Param("year") int year);
-
-    @Modifying(clearAutomatically = true)
-    @Query("update Book b set b.archived = true where b.year < :year")
-    int archiveOlderThan(@Param("year") int year);
-
-
-    @Query("select b from Book b join fetch b.author")
-    List<Book> findAllWithAuthor();
-
-
-    @EntityGraph(attributePaths = "author")
-    Page<Book> findByGenre(Genre genre, Pageable pageable);
-
-    @Override
-    @EntityGraph(attributePaths = "author")
-    Page<Book> findAll(Pageable pageable);
-
-    @EntityGraph(attributePaths = "author")
-    Slice<Book> findSliceBy(Pageable pageable);
-
-
-    @Query("""
-            select new kz.iitu.springlab.catalog.GenreReport(
-                       b.genre, count(b), avg(b.year))
-            from Book b
-            group by b.genre
-            order by count(b) desc""")
-    List<GenreReport> reportByGenre();
-
-
-    @EntityGraph(attributePaths = "author")
-    List<Book> findByAuthorNameContainingIgnoreCase(String name);
-
-    boolean existsByTitleIgnoreCaseAndAuthorNameIgnoreCase(String title, String authorName);
-
-    @Override
-    @EntityGraph(attributePaths = "author")
-    Optional<Book> findById(Long id);
+    public boolean deleteById(long id) {
+        return storage.remove(id) != null;
+    }
 }

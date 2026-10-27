@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
+<head th:replace="~{fragments/layout :: head(#{home.title})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header}"></header>
+
+<main class="container">
+    <section class="hero">
+        <div>
+            <span class="eyebrow" th:text="#{home.eyebrow}">Spring Lab · Book catalogue</span>
+            <h1 th:text="#{home.heading}">Your library, neatly organised.</h1>
+            <p class="lead" th:text="#{home.lead}">Browse the catalogue, add new titles…</p>
+            <div class="hero-actions">
+                <a class="btn btn-primary" th:href="@{/books}" href="/books">
+                    <span th:text="#{home.cta.browse}">Browse catalogue</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+                </a>
+                <a class="btn btn-ghost" th:href="@{/books/new}" href="/books/new">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                    <span th:text="#{home.cta.add}">Add a book</span>
+                </a>
+            </div>
+        </div>
+        <div class="shelf" aria-hidden="true">
+            <div class="spine s1"></div><div class="spine s2"></div><div class="spine s3"></div><div class="spine s4"></div><div class="spine s5"></div>
+        </div>
+    </section>
+
+    <section class="grid grid-3 stats">
+        <div class="card stat">
+            <span class="stat-value" th:text="${bookCount}">3</span>
+            <span class="stat-label" th:text="#{home.stats.books}">Books</span>
+        </div>
+        <div class="card stat">
+            <span class="stat-value" th:text="${authorCount}">3</span>
+            <span class="stat-label" th:text="#{home.stats.authors}">Authors</span>
+        </div>
+        <div class="card stat">
+            <span class="stat-value" th:text="${genreCount}">1</span>
+            <span class="stat-label" th:text="#{home.stats.genres}">Genres</span>
+        </div>
+    </section>
+
+    <section th:unless="${#lists.isEmpty(latest)}" style="margin-bottom: 44px">
+        <div class="section-title">
+            <h2 th:text="#{home.latest}">Recently added</h2>
+            <a th:href="@{/books}" href="/books"><span th:text="#{nav.catalogue}">Catalogue</span> →</a>
+        </div>
+        <div class="grid grid-3">
+            <a class="card book-card" th:each="book : ${latest}" th:href="@{/books/{id}(id=${book.id()})}" href="#">
+                <span class="cover" th:classappend="'g-' + ${book.genre()}"
+                      th:text="${#strings.toUpperCase(#strings.substring(book.title(), 0, 1))}">E</span>
+                <span class="meta">
+                    <strong th:text="${book.title()}">Effective Java</strong>
+                    <span th:text="${book.author()} + ' · ' + ${book.year()}">Joshua Bloch · 2018</span>
+                </span>
+            </a>
+        </div>
+    </section>
+
+    <section>
+        <div class="section-title"><h2 th:text="#{home.explore}">Explore</h2></div>
+        <div class="grid grid-4">
+            <a class="card link-card" th:href="@{/books}" href="/books">
+                <span class="icon-badge"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>
+                <h3 th:text="#{nav.catalogue}">Catalogue</h3>
+                <p th:text="#{home.card.catalogue}">Search and manage every book.</p>
+                <span class="go">/books →</span>
+            </a>
+            <a class="card link-card" th:href="@{/books/new}" href="/books/new">
+                <span class="icon-badge warm"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
+                <h3 th:text="#{nav.new}">Add book</h3>
+                <p th:text="#{home.card.new}">Add a new title.</p>
+                <span class="go">/books/new →</span>
+            </a>
+            <a class="card link-card" th:href="@{/tools}" href="/tools">
+                <span class="icon-badge"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
+                <h3 th:text="#{nav.tools}">Tools</h3>
+                <p th:text="#{home.card.tools}">Greeting and word count.</p>
+                <span class="go">/tools →</span>
+            </a>
+            <a class="card link-card" th:href="@{/swagger-ui.html}" href="/swagger-ui.html">
+                <span class="icon-badge warm"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></span>
+                <h3 th:text="#{nav.api}">API docs</h3>
+                <p th:text="#{home.card.api}">Swagger UI for the REST API.</p>
+                <span class="go">/swagger-ui.html →</span>
+            </a>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
